@@ -1,0 +1,10 @@
+# Use the official sqlc Docker image as the base
+FROM kjconroy/sqlc:latest
+
+WORKDIR /app
+
+# Copy the sqlc configuration file and SQL files into the container
+COPY . .
+
+# Run sqlc generate command
+CMD ["generate", "--file", "./sql/sqlc/sqlc.yml"]
