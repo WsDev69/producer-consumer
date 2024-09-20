@@ -61,7 +61,7 @@ coverage:  coverage-maker
 
 coverage-html-maker:
 	go test -tags=unit,integration -coverpkg=./... -covermode atomic -coverprofile=/tmp/coverage.out ./...
-	cat /tmp/coverage.out | grep -v "postgres/db" | grep -v ".pb.go" | grep -v "mock" > /tmp/coverage_cleaned.out
+	cat /tmp/coverage.out | grep -v ".pb.go" | grep -v "mock" > /tmp/coverage_cleaned.out
 	mv /tmp/coverage_cleaned.out /tmp/coverage.out
 	go tool cover -html=/tmp/coverage.out
 
