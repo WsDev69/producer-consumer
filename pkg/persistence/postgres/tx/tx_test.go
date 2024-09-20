@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"producer-consumer/pkg/persistence/postgres/test"
-	"producer-consumer/pkg/persistence/postgres/tx"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/postgres/test"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/postgres/tx"
 
 	"github.com/stretchr/testify/assert"
 
@@ -26,7 +26,7 @@ func TestWithTx_Commit(t *testing.T) {
 
 	// Run transaction
 	ok, err := tx.WithTx(ctx, conn, tx.Options{Level: tx.ReadCommited}, func(tx tx.DBTX) (bool, error) {
-		_, err := tx.Exec(ctx, "INSERT INTO users (name) VALUES ($1)", "Alice")
+		_, err = tx.Exec(ctx, "INSERT INTO users (name) VALUES ($1)", "Alice")
 		return true, err
 	})
 	assert.NoError(t, err)
@@ -52,7 +52,7 @@ func TestWithTx_Rollback(t *testing.T) {
 
 	// Run transaction that will fail and rollback
 	ok, err := tx.WithTx(ctx, conn, tx.Options{Level: tx.ReadCommited}, func(tx tx.DBTX) (bool, error) {
-		_, err := tx.Exec(ctx, "INSERT INTO users (name) VALUES ($1)", "Bob")
+		_, err = tx.Exec(ctx, "INSERT INTO users (name) VALUES ($1)", "Bob")
 		if err != nil {
 			return false, err
 		}
@@ -83,7 +83,7 @@ func TestWithTxExec_Commit(t *testing.T) {
 
 	// Run transaction
 	err = tx.WithTxExec(ctx, conn, tx.Options{Level: tx.ReadCommited}, func(tx tx.DBTX) error {
-		_, err := tx.Exec(ctx, "INSERT INTO users (name) VALUES ($1)", "Alice")
+		_, err = tx.Exec(ctx, "INSERT INTO users (name) VALUES ($1)", "Alice")
 		return err
 	})
 	assert.NoError(t, err)
@@ -108,7 +108,7 @@ func TestWithTxExec_Rollback(t *testing.T) {
 
 	// Run transaction that will fail and rollback
 	err = tx.WithTxExec(ctx, conn, tx.Options{Level: tx.ReadCommited}, func(tx tx.DBTX) error {
-		_, err := tx.Exec(ctx, "INSERT INTO users (name) VALUES ($1)", "Bob")
+		_, err = tx.Exec(ctx, "INSERT INTO users (name) VALUES ($1)", "Bob")
 		if err != nil {
 			return err
 		}

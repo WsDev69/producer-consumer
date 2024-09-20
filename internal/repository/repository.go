@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"producer-consumer/pkg/persistence/sqlc"
+
+	"github.com/WsDev69/producer-consumer/pkg/persistence/sqlc"
 )
 
 type Task interface {

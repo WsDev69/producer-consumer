@@ -4,17 +4,22 @@ import "time"
 
 type (
 	Config struct {
-		LogLevel   string `default:"debug"`
-		OutPut     string `default:"json"`
-		MaxBacklog int64  `default:"100"`
-		Postgres   Postgres
-		GRPC       GRPC
-		NumWorker  int `default:"10"`
-		Producer   Producer
+		LogLevel    string `default:"debug"`
+		OutPut      string `default:"json"`
+		MessageRate int    `default:"100"`
+		Postgres    Postgres
+		GRPC        GRPC
+		Prometheus  Prometheus
+	}
+
+	Consumer struct {
+		Config
 	}
 
 	Producer struct {
-		MessageRate int `default:"100"`
+		Config
+		NumWorker  int   `default:"10"`
+		MaxBacklog int64 `default:"100"`
 	}
 
 	Postgres struct {

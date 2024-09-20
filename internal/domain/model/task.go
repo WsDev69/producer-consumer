@@ -5,7 +5,7 @@ import (
 )
 
 type TaskRequest struct {
-	ID    int64
+	ID    int32
 	Type  int32
 	Value int32
 }

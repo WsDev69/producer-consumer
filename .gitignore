@@ -23,8 +23,17 @@ go.work.sum
 
 # env file
 .env
+
+# build
 bin/
+
+# idea
 .idea/
 .DS_Store/
-
 .DS_Store
+
+# graphana & prometheus
+grafana/
+prometheus_data/
+grafana_data/
+

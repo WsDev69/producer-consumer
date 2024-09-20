@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//go:generate mockery --name Random --output=mocks/
 type Random interface {
 	Int63n(value int64) int64
 }
@@ -18,7 +19,7 @@ func NewRandom() Random {
 }
 
 func NewRandomWithSeed(seed int64) Random {
-	return &gorand{rand: rand.New(rand.NewSource(seed))}
+	return &gorand{rand: rand.New(rand.NewSource(seed))} //nolint:gosec // we don't need a secure generator here
 }
 
 func (r *gorand) Int63n(value int64) int64 {

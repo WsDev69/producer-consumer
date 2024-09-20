@@ -8,8 +8,7 @@ import (
 )
 
 func UnaryServerInterceptor(rl ratelimit.Limiter) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-
+	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		rl.Take()
 		return handler(ctx, req)
 

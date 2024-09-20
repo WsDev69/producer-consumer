@@ -1,9 +1,10 @@
 package prometheus
 
 import (
+	"net/http"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"net/http"
 )
 
 type Prometheus struct {
@@ -22,5 +23,5 @@ func (p *Prometheus) Serve(addr string) error {
 		p.reg,
 		promhttp.HandlerOpts{},
 	))
-	return http.ListenAndServe(addr, nil)
+	return http.ListenAndServe(addr, nil) //nolint:gosec // metrics endpoint
 }

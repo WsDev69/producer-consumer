@@ -5,9 +5,11 @@ import (
 	"log/slog"
 	"time"
 
-	"producer-consumer/internal/domain/model"
-	"producer-consumer/pkg/persistence/sqlc"
+	"github.com/WsDev69/producer-consumer/internal/domain/model"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/sqlc"
 )
+
+const millisecondInSeconds = 1000
 
 type Producer interface {
 	GenerateAndSendTask(ctx context.Context) error
@@ -35,7 +37,6 @@ func NewProducer(ctx context.Context,
 	client Client,
 	intRandom Random,
 	config ProducerConfig) Producer {
-
 	s := &serviceProducer{
 		taskSrv: taskSrv,
 
@@ -50,7 +51,7 @@ func NewProducer(ctx context.Context,
 		go s.worker(ctx, i+1, s.taskChan)
 	}
 
-	s.producerTick = time.Tick(time.Duration(1000/config.MessageRate) * time.Millisecond)
+	s.producerTick = time.Tick(time.Duration(millisecondInSeconds/config.MessageRate) * time.Millisecond)
 
 	return s
 }
@@ -91,8 +92,8 @@ func (s serviceProducer) GenerateAndSendTask(ctx context.Context) error {
 // getTask generate a random task
 func (s serviceProducer) getTask() sqlc.CreateTaskParams {
 	return sqlc.CreateTaskParams{
-		Type:  int32(s.intRand.Int63n(10)),
-		Value: int32(s.intRand.Int63n(64)),
+		Type:  int32(s.intRand.Int63n(10)), //nolint:gosec,mnd // no magic numbers
+		Value: int32(s.intRand.Int63n(64)), //nolint:gosec,mnd // no magic numbers
 	}
 }
 
@@ -112,7 +113,7 @@ func (s serviceProducer) worker(ctx context.Context, id int, tasks <-chan model.
 
 			log.Info("Worker processing task", slog.Int("workerID", id), slog.Int("taskID", int(t.ID)))
 			if err := s.client.Process(ctx, model.TaskRequest{
-				ID:    int64(t.ID),
+				ID:    t.ID,
 				Type:  t.Type,
 				Value: t.Value,
 			}); err != nil {

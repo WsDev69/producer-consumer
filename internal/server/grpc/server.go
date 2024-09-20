@@ -8,9 +8,8 @@ import (
 	"os"
 	"sync"
 
-	"producer-consumer/internal/config"
-
-	pb "producer-consumer/internal/handler/grpc/gen/task"
+	"github.com/WsDev69/producer-consumer/internal/config"
+	pb "github.com/WsDev69/producer-consumer/internal/handler/grpc/gen/task"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
