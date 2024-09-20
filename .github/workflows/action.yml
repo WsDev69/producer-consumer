@@ -1,6 +1,6 @@
 name: Test & Build
 
-on: [push]
+on: push
 
 jobs:
   setup-go:
