@@ -26,6 +26,9 @@ import (
 
 func main() {
 	common.ShowVersion()
+	common.ExposePprof("localhost:1377")
+	common.RunCPUProf()
+	common.MEMProf()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -42,7 +45,7 @@ func main() {
 		panic(err)
 	}
 
-	taskSrv := task.NewService(p.TaskRepository, p.Conn)
+	taskSrv := task.NewService(p.TaskRepository, p.TaskSumsRepository, p.Conn)
 	taskConsumer := task.NewConsumer(taskSrv)
 
 	// init prometheus

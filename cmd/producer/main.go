@@ -23,6 +23,9 @@ import (
 
 func main() {
 	common.ShowVersion()
+	common.ExposePprof("localhost:1378")
+	common.RunCPUProf()
+	common.MEMProf()
 
 	// init context
 	ctx := context.Background()
@@ -66,7 +69,7 @@ func main() {
 	}()
 
 	// create task service
-	taskSrv := task.NewService(p.TaskRepository, p.Conn)
+	taskSrv := task.NewService(p.TaskRepository, p.TaskSumsRepository, p.Conn)
 
 	// init producer
 	producerConfig := task.ProducerConfig{

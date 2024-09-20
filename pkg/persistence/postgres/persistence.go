@@ -13,8 +13,9 @@ import (
 )
 
 type Persistence struct {
-	TaskRepository repository.Task
-	Conn           *tx.Conn
+	TaskRepository     repository.Task
+	TaskSumsRepository repository.TaskSums
+	Conn               *tx.Conn
 }
 
 func Init(ctx context.Context, cfg *config.Postgres) (*Persistence, error) {
@@ -38,6 +39,7 @@ func Init(ctx context.Context, cfg *config.Postgres) (*Persistence, error) {
 	p := &Persistence{}
 
 	p.TaskRepository = NewTaskRepository(q)
+	p.TaskSumsRepository = NewTaskSumsRepository(q)
 	p.Conn = tx.NewConn(conn)
 
 	return p, nil
