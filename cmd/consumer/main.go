@@ -27,7 +27,7 @@ import (
 func main() {
 	common.ShowVersion()
 	common.ExposePprof("localhost:1377")
-	common.CPUProf()
+	common.RunCPUProf()
 	common.MEMProf()
 
 	ctx, cancel := context.WithCancel(context.Background())

@@ -24,7 +24,7 @@ import (
 func main() {
 	common.ShowVersion()
 	common.ExposePprof("localhost:1378")
-	common.CPUProf()
+	common.RunCPUProf()
 	common.MEMProf()
 
 	// init context
