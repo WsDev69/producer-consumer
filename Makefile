@@ -8,6 +8,7 @@ VERSION := 1.0.0
 COMMIT_HASH := $(shell git rev-parse HEAD)
 BUILD_TIME := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 
+
 GO := go
 GOLINT := golangci-lint
 
@@ -20,6 +21,8 @@ info:
 	@echo "Build time : ${BUILD_TIME}"
 
 LDFLAGS := -X '${IMPORT_PATH}.Version=$(VERSION)' -X '${IMPORT_PATH}.CommitHash=$(COMMIT_HASH)' -X '${IMPORT_PATH}.BuildTime=$(BUILD_TIME)' -s -w
+PGO_MEM := -pgo=mem.prof
+PGO_CPU := -pgo=cpu.prof
 
 
 all: clean proto-generate dep generate fmt lint test_all
@@ -41,7 +44,7 @@ $(BUILD_DIR)/$(APP_NAME_PRODUCER):
 
 build-consumer:
 	@mkdir -p $(BUILD_DIR)
-	$(GO) build $(GOFLAGS) -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(APP_NAME_CONSUMER) ./cmd/$(APP_NAME_CONSUMER)/main.go
+	$(GO) build $(GOFLAGS) $(PGO_CPU)  -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(APP_NAME_CONSUMER) ./cmd/$(APP_NAME_CONSUMER)/main.go
 
 
 clean:
