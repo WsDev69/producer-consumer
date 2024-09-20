@@ -44,7 +44,7 @@ $(BUILD_DIR)/$(APP_NAME_PRODUCER):
 
 build-consumer:
 	@mkdir -p $(BUILD_DIR)
-	$(GO) build $(GOFLAGS) $(PGO_CPU)  -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(APP_NAME_CONSUMER) ./cmd/$(APP_NAME_CONSUMER)/main.go
+	$(GO) build $(GOFLAGS) -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(APP_NAME_CONSUMER) ./cmd/$(APP_NAME_CONSUMER)/main.go
 
 
 clean:
