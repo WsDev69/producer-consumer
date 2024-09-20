@@ -69,7 +69,7 @@ func main() {
 	}()
 
 	// create task service
-	taskSrv := task.NewService(p.TaskRepository, p.Conn)
+	taskSrv := task.NewService(p.TaskRepository, p.TaskSumsRepository, p.Conn)
 
 	// init producer
 	producerConfig := task.ProducerConfig{

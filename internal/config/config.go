@@ -18,8 +18,8 @@ type (
 
 	Producer struct {
 		Config
-		NumWorker  int   `default:"10"`
-		MaxBacklog int64 `default:"100"`
+		NumWorker  int   `default:"5"`
+		MaxBacklog int64 `default:"10"`
 	}
 
 	Postgres struct {

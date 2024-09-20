@@ -45,7 +45,7 @@ func main() {
 		panic(err)
 	}
 
-	taskSrv := task.NewService(p.TaskRepository, p.Conn)
+	taskSrv := task.NewService(p.TaskRepository, p.TaskSumsRepository, p.Conn)
 	taskConsumer := task.NewConsumer(taskSrv)
 
 	// init prometheus

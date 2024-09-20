@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
@@ -42,6 +43,20 @@ func TestProcessTask_Success(t *testing.T) {
 		ID:    int32(1),
 		State: sqlc.TaskStateDone,
 	}).Return(nil)
+
+	mockTask.On("GetTask", mock.Anything, mock.Anything).Return(model.Task{
+		ID:             int32(1),
+		Type:           2,
+		Value:          100,
+		State:          model.TaskStateDone,
+		CreationTime:   time.Now(),
+		LastUpdateTime: time.Now(),
+	}, nil)
+
+	mockTask.On("GetTotalSumByType", mock.Anything, mock.Anything).Return(sqlc.TaskSum{
+		TaskType:   2,
+		TotalValue: 100,
+	}, nil)
 
 	// Call ProcessTask
 	err := consumer.ProcessTask(ctx, taskRequest)

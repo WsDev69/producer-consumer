@@ -3,6 +3,7 @@ package task
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/WsDev69/producer-consumer/internal/domain/model"
@@ -47,6 +48,21 @@ func (c consumer) ProcessTask(ctx context.Context, task model.TaskRequest) error
 		TasksValueSum.
 		With(prometheus.Labels{"task_type": fmt.Sprintf("%d", task.Type)}).
 		Add(float64(task.Value))
+
+	t, err := c.taskSrv.GetTask(ctx, task.ID)
+	if err != nil {
+		return fmt.Errorf("can't get task: %w", err)
+	}
+
+	totalSum, err := c.taskSrv.GetTotalSumByType(ctx, t.Type)
+	if err != nil {
+		return fmt.Errorf("can't get total sum: %w", err)
+	}
+
+	slog.Default().Info("Task successfully processed",
+		slog.String("task", t.String()),
+		slog.Int("total_sum", int(totalSum.TotalValue)),
+	)
 
 	return nil
 }
