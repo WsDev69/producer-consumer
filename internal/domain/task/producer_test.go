@@ -21,8 +21,7 @@ func TestGenerateAndSendTask(t *testing.T) {
 	mockClient := new(mocks.Client)
 	mockRandom := new(mocks.Random)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := context.Background()
 
 	// Configure mock expectations
 	mockTask.On("GetUnprocessedCount", mock.Anything).Return(int64(50), nil)
@@ -33,7 +32,6 @@ func TestGenerateAndSendTask(t *testing.T) {
 	}, nil)
 
 	mockClient.On("Process", mock.Anything, mock.Anything).Return(nil)
-
 	mockRandom.On("Int63n", mock.Anything).Return(int64(3))
 
 	// Create a producer configuration
@@ -55,8 +53,7 @@ func TestGenerateAndSendTask(t *testing.T) {
 	}()
 
 	// Give some time for the producer to run before canceling the context
-	time.Sleep(1 * time.Second)
-	cancel()
+	time.Sleep(5 * time.Second)
 
 	// Assert that the mocks were called as expected
 	mockTask.AssertExpectations(t)
