@@ -1,0 +1,63 @@
+name: Test & Build
+
+on:
+  push:
+  pull_request:
+
+
+jobs:
+  setup-go:
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+
+  lint:
+    name: Run Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60.3
+          install-mode: goinstall
+          args: --timeout=10m
+
+      - name: Run Lint
+        run: make lint
+
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      - name: Run Tests
+        run: make test
+
+  build:
+    name: Run Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      - name: Run Build Consumer
+        run: make build-consumer
+
+      - name: Run Build Producer
+        run: make build-producer
