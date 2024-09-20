@@ -9,6 +9,8 @@ COMMIT_HASH := $(shell git rev-parse HEAD)
 BUILD_TIME := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 
 GO := go
+GOLINT := golangci-lint
+
 
 IMPORT_PATH := producer-consumer/pkg/build
 
@@ -20,7 +22,7 @@ info:
 LDFLAGS := -X '${IMPORT_PATH}.Version=$(VERSION)' -X '${IMPORT_PATH}.CommitHash=$(COMMIT_HASH)' -X '${IMPORT_PATH}.BuildTime=$(BUILD_TIME)' -s -w
 
 
-all: clean submodule-update proto-generate dep generate fmt lint testenvdown test_all
+all: clean proto-generate dep generate fmt lint test_all
 
 dep:
 	go mod tidy
@@ -48,31 +50,24 @@ clean:
 lint: dep
 	$(GOLINT) run --timeout=5m -c .golangci.yml
 
-test_all: testenvup test testenvdown
-
-testenvup:
-	@docker-compose -f internal/files/docker-compose.yml up -d
-	@sleep 10
-
-testenvdown:
-	@docker-compose -f internal/files/docker-compose.yml down
+test_all: test
 
 test:
 	go test -cover -race -count=1 -timeout=60s ./...
 
-coverage-html: testenvdown testenvup coverage-html-maker testenvdown
+coverage-html: coverage-html-maker
 
-coverage: testenvdown testenvup coverage-maker testenvdown
+coverage:  coverage-maker
 
 coverage-html-maker:
 	go test -tags=unit,integration -coverpkg=./... -covermode atomic -coverprofile=/tmp/coverage.out ./...
-	cat /tmp/coverage.out | grep -v "postgres/db" | grep -v ".pb.go" | grep -v "mock" > /tmp/coverage_cleaned.out
+	cat /tmp/coverage.out | grep -v ".pb.go" | grep -v "mock" > /tmp/coverage_cleaned.out
 	mv /tmp/coverage_cleaned.out /tmp/coverage.out
 	go tool cover -html=/tmp/coverage.out
 
 coverage-maker:
 	go test -tags=unit,integration -coverpkg=./... -covermode atomic -coverprofile=/tmp/coverage.out ./...
-	cat /tmp/coverage.out | grep -v "postgres/db" | grep -v ".pb.go" | grep -v "mock" > /tmp/coverage_cleaned.out
+	cat /tmp/coverage.out | grep -v ".pb.go" | grep -v "mock" > /tmp/coverage_cleaned.out
 	mv /tmp/coverage_cleaned.out /tmp/coverage.out
 	go tool cover -func=/tmp/coverage.out
 
@@ -89,10 +84,6 @@ proto-generate:
 generate:
 	go generate ./...
 
-	mockgen -package mock -source internal/server/grpc/interface.go -destination internal/server/grpc/mock/interface.go
-	mockgen -package mock -source internal/service/interface.go -destination internal/service/mock/interface.go
-	mockgen -package mock -source internal/validator/interface.go -destination internal/validator/mock/interface.go
-
 migrate-create: ## Create migration file with name
 	migrate create -ext sql -dir sql/migrations -seq -digits 10 $(name)
 
@@ -106,6 +97,5 @@ migrate-fix: ## Fix migrations
 	$(MIGRATE) force $(v)
 
 tools:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1
-	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.18.1
-	go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.27.5
+	go install github.com/vektra/mockery/v2@v2.46.0
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0

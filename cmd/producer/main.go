@@ -2,27 +2,26 @@ package main
 
 import (
 	"context"
-	"github.com/prometheus/client_golang/prometheus"
+	"log"
 	"log/slog"
 	"os"
 	"os/signal"
-	"producer-consumer/internal/monitoring"
-	prommethueswrap "producer-consumer/pkg/prometheus"
-
 	"syscall"
 
+	"github.com/WsDev69/producer-consumer/cmd/common"
+	"github.com/WsDev69/producer-consumer/internal/config"
+	"github.com/WsDev69/producer-consumer/internal/domain/task"
+	taskgrpc "github.com/WsDev69/producer-consumer/internal/handler/grpc/gen/task"
+	"github.com/WsDev69/producer-consumer/internal/monitoring"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/postgres"
+	prommethueswrap "github.com/WsDev69/producer-consumer/pkg/prometheus"
+
+	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"producer-consumer/cmd/common"
-	"producer-consumer/internal/config"
-	"producer-consumer/internal/domain/task"
-	taskgrpc "producer-consumer/internal/handler/grpc/gen/task"
-	"producer-consumer/pkg/persistence/postgres"
 )
 
 func main() {
-
 	common.ShowVersion()
 
 	// init context
@@ -30,16 +29,13 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	// init logger
-	// TODO: add severity and type of Output
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-
 	// init config
-	cfg, err := config.Read("producer")
+	cfg, err := config.ReadProducer("producer")
 	if err != nil {
-		panic(err)
+		log.Fatalf("cannot read producer config: %v", err) //nolint:gocritic // nothing to cancel, ok to use fatal
 	}
+
+	logger := common.Logger(cfg.LogLevel, cfg.OutPut)
 
 	// init db (postgres)
 	p, err := postgres.Init(ctx, &cfg.Postgres)
@@ -76,7 +72,7 @@ func main() {
 	producerConfig := task.ProducerConfig{
 		MaxBackLog: cfg.MaxBacklog,
 		Config: task.Config{
-			MessageRate: cfg.Producer.MessageRate,
+			MessageRate: cfg.MessageRate,
 			NumWorker:   cfg.NumWorker,
 		},
 	}

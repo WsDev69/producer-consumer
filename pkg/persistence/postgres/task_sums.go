@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 
-	"producer-consumer/internal/repository"
-	"producer-consumer/pkg/persistence/sqlc"
+	"github.com/WsDev69/producer-consumer/internal/repository"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/sqlc"
 )
 
 type TaskSumsRepository struct {

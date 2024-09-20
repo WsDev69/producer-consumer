@@ -3,13 +3,13 @@ package task
 import (
 	"context"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
-	"producer-consumer/internal/domain/model"
-	"producer-consumer/internal/monitoring"
-
 	"time"
 
-	"producer-consumer/pkg/persistence/sqlc"
+	"github.com/WsDev69/producer-consumer/internal/domain/model"
+	"github.com/WsDev69/producer-consumer/internal/monitoring"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/sqlc"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Consumer interface {
@@ -27,20 +27,20 @@ func NewConsumer(taskSrv Task) Consumer {
 func (c consumer) ProcessTask(ctx context.Context, task model.TaskRequest) error {
 	// Task has been received. Set state to Processing
 	if err := c.taskSrv.UpdateTaskState(ctx, sqlc.UpdateTaskStateParams{
-		ID:    int32(task.ID),
+		ID:    task.ID,
 		State: sqlc.TaskStateProcessing,
 	}); err != nil {
-		return fmt.Errorf("can't update task: %v ", err)
+		return fmt.Errorf("can't update task: %w ", err)
 	}
 
 	// simulate work
 	time.Sleep(time.Duration(task.Value) * time.Millisecond)
 
 	if err := c.taskSrv.UpdateTaskState(ctx, sqlc.UpdateTaskStateParams{
-		ID:    int32(task.ID),
+		ID:    task.ID,
 		State: sqlc.TaskStateDone,
 	}); err != nil {
-		return fmt.Errorf("can't update task: %v ", err)
+		return fmt.Errorf("can't update task: %w ", err)
 	}
 
 	monitoring.

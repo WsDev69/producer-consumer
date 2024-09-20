@@ -1,8 +1,8 @@
 package grpc
 
 import (
-	"producer-consumer/internal/domain/task"
-	pb "producer-consumer/internal/handler/grpc/gen/task"
+	"github.com/WsDev69/producer-consumer/internal/domain/task"
+	pb "github.com/WsDev69/producer-consumer/internal/handler/grpc/gen/task"
 )
 
 type Handler struct {

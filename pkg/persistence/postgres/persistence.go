@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"producer-consumer/internal/config"
-	"producer-consumer/internal/repository"
-	"producer-consumer/pkg/persistence/postgres/tx"
-	"producer-consumer/pkg/persistence/sqlc"
+	"github.com/WsDev69/producer-consumer/internal/config"
+	"github.com/WsDev69/producer-consumer/internal/repository"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/postgres/tx"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/sqlc"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -26,10 +26,13 @@ func Init(ctx context.Context, cfg *config.Postgres) (*Persistence, error) {
 		return nil, err
 	}
 
-	connConfig.MaxConns = int32(cfg.MaxOpenConn)
+	connConfig.MaxConns = int32(cfg.MaxOpenConn) //nolint:gosec // integer overflow conversion is not possible
 	connConfig.MaxConnIdleTime = cfg.ConnMaxLifeTime
 
 	conn, err := pgxpool.NewWithConfig(ctx, connConfig)
+	if err != nil {
+		return nil, err
+	}
 	q := sqlc.New(conn)
 
 	p := &Persistence{}

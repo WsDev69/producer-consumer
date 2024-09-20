@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"producer-consumer/internal/domain/model"
-	"producer-consumer/internal/monitoring"
 
-	"producer-consumer/internal/handler/grpc/gen/task"
+	"github.com/WsDev69/producer-consumer/internal/domain/model"
+	"github.com/WsDev69/producer-consumer/internal/handler/grpc/gen/task"
+	"github.com/WsDev69/producer-consumer/internal/monitoring"
 )
 
 func (s Handler) Process(ctx context.Context, in *task.TaskRequest) (*task.TaskResponse, error) {
 	err := s.consumer.ProcessTask(ctx, model.TaskRequest{
-		ID:    in.Id,
+		ID:    int32(in.Id), //nolint:gosec // for the current implementation, we will never overflow the int32
 		Type:  in.Type,
 		Value: in.Value,
 	})

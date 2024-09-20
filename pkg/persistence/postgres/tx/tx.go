@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/jackc/pgx/v5/pgconn"
-
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // DBTX defines an interface implemented by both *pgx.Tx and *pgx.Pool
@@ -57,7 +55,7 @@ func WithTx[T Result](ctx context.Context, conn *Conn, opts Options, fn func(tx 
 func WithTxExec(ctx context.Context, conn *Conn, opts Options, fn func(tx DBTX) error) (err error) {
 	tx, err := GetTx(ctx, conn, opts)
 	if err != nil {
-		return fmt.Errorf("can't start transaction: %v ", err)
+		return fmt.Errorf("can't start transaction: %w ", err)
 	}
 
 	defer func() {
@@ -75,15 +73,14 @@ func FinishTx(tx pgx.Tx, ctx context.Context, err error) error {
 	if p := recover(); p != nil {
 		errRb := tx.Rollback(ctx)
 		err = errors.Join(err, errRb)
-		panic(p)
 	} else if err != nil {
 		errRb := tx.Rollback(ctx)
 		err = errors.Join(err, errRb)
 	} else {
 		errC := tx.Commit(ctx)
 		err = errors.Join(err, errC)
-
 	}
+
 	return err
 }
 
@@ -95,8 +92,8 @@ func GetTx(ctx context.Context, conn *Conn, opts Options) (pgx.Tx, error) {
 	return tx, nil
 }
 
-func ToPgxLevel(level IsolationLevel) pgx.TxIsoLevel {
-	switch level {
+func ToPgxLevel(level IsolationLevel) pgx.TxIsoLevel { //nolint:gocritic / in the future it might be reasonable to add more
+	switch level { // //nolint:gocritic / I would like to keep switch
 	case ReadCommited:
 		return pgx.ReadCommitted
 	}

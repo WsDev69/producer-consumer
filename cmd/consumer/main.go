@@ -2,22 +2,22 @@ package main
 
 import (
 	"context"
-
+	"log"
 	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 
-	"producer-consumer/cmd/common"
-	"producer-consumer/internal/config"
-	"producer-consumer/internal/domain/task"
-	handler "producer-consumer/internal/handler/grpc"
-	"producer-consumer/internal/midlleware"
-	"producer-consumer/internal/monitoring"
-	"producer-consumer/internal/server/grpc"
-	"producer-consumer/pkg/persistence/postgres"
-	prommethueswrap "producer-consumer/pkg/prometheus"
+	"github.com/WsDev69/producer-consumer/cmd/common"
+	"github.com/WsDev69/producer-consumer/internal/config"
+	"github.com/WsDev69/producer-consumer/internal/domain/task"
+	handler "github.com/WsDev69/producer-consumer/internal/handler/grpc"
+	"github.com/WsDev69/producer-consumer/internal/midlleware"
+	"github.com/WsDev69/producer-consumer/internal/monitoring"
+	"github.com/WsDev69/producer-consumer/internal/server/grpc"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/postgres"
+	prommethueswrap "github.com/WsDev69/producer-consumer/pkg/prometheus"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/ratelimit"
@@ -30,14 +30,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
-
-	cfg, err := config.Read("consumer")
+	cfg, err := config.ReadConsumer("consumer")
 	if err != nil {
-		logger.Error("can't read config", slog.String("err", err.Error()))
-		os.Exit(1)
+		log.Fatalf("can't read config: %v", err) //nolint:gocritic // nothing to cancel, we can call fatal
 	}
+
+	logger := common.Logger(cfg.LogLevel, cfg.OutPut)
 
 	p, err := postgres.Init(ctx, &cfg.Postgres)
 	if err != nil {
@@ -65,7 +63,7 @@ func main() {
 	h := handler.NewHandler(taskConsumer)
 	grpcServer := grpc.NewServer(cfg.GRPC, h)
 
-	rl := ratelimit.New(10)
+	rl := ratelimit.New(cfg.MessageRate)
 	wg := &sync.WaitGroup{}
 	grpcServer.Serve(ctx, wg, pb.UnaryInterceptor(midlleware.UnaryServerInterceptor(rl)))
 

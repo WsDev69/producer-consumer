@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 
-	"producer-consumer/internal/repository"
-	"producer-consumer/pkg/persistence/sqlc"
+	"github.com/WsDev69/producer-consumer/internal/repository"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/sqlc"
 )
 
 type TaskRepository struct {
@@ -34,12 +34,7 @@ func (t *TaskRepository) CreateTask(ctx context.Context, params sqlc.CreateTaskP
 }
 
 func (t *TaskRepository) UpdateTask(ctx context.Context, params sqlc.UpdateTaskStateParams) error {
-	err := t.db.UpdateTaskState(ctx, params)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return t.db.UpdateTaskState(ctx, params)
 }
 
 func (t *TaskRepository) GetUnprocessedCount(ctx context.Context) (int64, error) {

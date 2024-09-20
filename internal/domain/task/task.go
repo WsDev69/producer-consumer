@@ -2,11 +2,13 @@ package task
 
 import (
 	"context"
-	"producer-consumer/internal/repository"
-	"producer-consumer/pkg/persistence/postgres/tx"
-	"producer-consumer/pkg/persistence/sqlc"
+
+	"github.com/WsDev69/producer-consumer/internal/repository"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/postgres/tx"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/sqlc"
 )
 
+//go:generate mockery --name Task --output=mocks/
 type Task interface {
 	CreateTask(ctx context.Context, params sqlc.CreateTaskParams) (sqlc.Task, error)
 	GetTask(ctx context.Context, id int32) (sqlc.Task, error)
@@ -31,7 +33,7 @@ func NewService(taskRepo repository.Task, conn *tx.Conn) Task {
 }
 
 func (s service) CreateTask(ctx context.Context, params sqlc.CreateTaskParams) (sqlc.Task, error) {
-	return tx.WithTx(ctx, s.conn, tx.Options{}, func(tx tx.DBTX) (sqlc.Task, error) {
+	return tx.WithTx(ctx, s.conn, tx.Options{}, func(_ tx.DBTX) (sqlc.Task, error) {
 		return s.taskRepo.CreateTask(ctx, params)
 	})
 }
@@ -41,7 +43,7 @@ func (s service) GetTask(ctx context.Context, id int32) (sqlc.Task, error) {
 }
 
 func (s service) UpdateTaskState(ctx context.Context, params sqlc.UpdateTaskStateParams) error {
-	return tx.WithTxExec(ctx, s.conn, tx.Options{}, func(tx tx.DBTX) error {
+	return tx.WithTxExec(ctx, s.conn, tx.Options{}, func(_ tx.DBTX) error {
 		return s.taskRepo.UpdateTask(ctx, params)
 	})
 }

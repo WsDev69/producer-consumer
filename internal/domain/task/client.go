@@ -2,12 +2,15 @@ package task
 
 import (
 	"context"
-	"google.golang.org/grpc"
 	"log/slog"
-	"producer-consumer/internal/domain/model"
-	"producer-consumer/internal/handler/grpc/gen/task"
+
+	"google.golang.org/grpc"
+
+	"github.com/WsDev69/producer-consumer/internal/domain/model"
+	"github.com/WsDev69/producer-consumer/internal/handler/grpc/gen/task"
 )
 
+//go:generate mockery --name Client --output=mocks/
 type Client interface {
 	Process(ctx context.Context, taskRequest model.TaskRequest) error
 }
@@ -22,7 +25,7 @@ func NewGrpcClient(taskServerClient task.TaskServerClient) Client {
 
 func (c *grpcClient) Process(ctx context.Context, taskRequest model.TaskRequest) error {
 	_, err := c.taskServerClient.Process(ctx, &task.TaskRequest{
-		Id:    taskRequest.ID,
+		Id:    int64(taskRequest.ID),
 		Type:  taskRequest.Type,
 		Value: taskRequest.Value,
 	}, grpc.EmptyCallOption{})

@@ -187,6 +187,8 @@ issues:
     - internal/cache # extracted from Go code
     - internal/renameio # extracted from Go code
     - internal/robustio # extracted from Go code
+    - pkg/persistence/postgres/test
+    - pkg/persistence/postgres/tx
 
 run:
   timeout: 5m
