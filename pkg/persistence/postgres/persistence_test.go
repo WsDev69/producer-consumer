@@ -1,4 +1,4 @@
-package postgres
+package postgres_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/WsDev69/producer-consumer/internal/config"
+	"github.com/WsDev69/producer-consumer/pkg/persistence/postgres"
 	"github.com/WsDev69/producer-consumer/pkg/persistence/postgres/test"
 )
 
@@ -28,7 +29,7 @@ func TestInit(t *testing.T) {
 	}
 
 	// Call Init to create a new Persistence instance
-	persistence, err := Init(ctx, cfg)
+	persistence, err := postgres.Init(ctx, cfg)
 	require.NoError(t, err)
 	assert.NotNil(t, persistence)
 	assert.NotNil(t, persistence.TaskRepository)

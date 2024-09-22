@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"github.com/WsDev69/producer-consumer/internal/monitoring"
 	"log/slog"
 	"time"
 
@@ -111,7 +112,7 @@ func (s serviceProducer) worker(ctx context.Context, id int, tasks <-chan model.
 				return
 			}
 
-			log.Info("Worker processing task", slog.Int("workerID", id), slog.Int("taskID", int(t.ID)))
+			log.Debug("Worker processing task", slog.Int("workerID", id), slog.Int("taskID", int(t.ID)))
 			if err := s.client.Process(ctx, model.TaskRequest{
 				ID:    t.ID,
 				Type:  t.Type,
@@ -119,7 +120,10 @@ func (s serviceProducer) worker(ctx context.Context, id int, tasks <-chan model.
 			}); err != nil {
 				log.Error("Failed to process task", slog.String("err", err.Error()))
 			}
-			log.Info("task successfully processed", slog.Int("workerID", id))
+			monitoring.
+				TasksProducedTotal.
+				Inc()
+			log.Info("task successfully processed", slog.Int("workerID", id), slog.Int("taskID", int(t.ID)))
 		}
 	}
 }

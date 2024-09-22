@@ -6,7 +6,7 @@ type (
 	Config struct {
 		LogLevel    string `default:"debug"`
 		OutPut      string `default:"json"`
-		MessageRate int    `default:"100"`
+		MessageRate int    `default:"1"`
 		Postgres    Postgres
 		GRPC        GRPC
 		Prometheus  Prometheus
@@ -18,7 +18,7 @@ type (
 
 	Producer struct {
 		Config
-		NumWorker  int   `default:"5"`
+		NumWorker  int   `default:"1"`
 		MaxBacklog int64 `default:"10"`
 	}
 

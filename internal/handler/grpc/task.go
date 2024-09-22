@@ -21,7 +21,7 @@ func (s Handler) Process(ctx context.Context, in *task.TaskRequest) (*task.TaskR
 		return nil, err
 	}
 
-	monitoring.TasksProcessedTotal.Inc()
+	monitoring.TasksDoneTotal.Inc()
 
 	return &task.TaskResponse{}, nil
 }

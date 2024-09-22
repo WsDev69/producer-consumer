@@ -2,8 +2,6 @@ package task
 
 import (
 	"context"
-	"log/slog"
-
 	"google.golang.org/grpc"
 
 	"github.com/WsDev69/producer-consumer/internal/domain/model"
@@ -29,7 +27,6 @@ func (c *grpcClient) Process(ctx context.Context, taskRequest model.TaskRequest)
 		Type:  taskRequest.Type,
 		Value: taskRequest.Value,
 	}, grpc.EmptyCallOption{})
-	slog.Default().Info("Got response from consumer")
 	if err != nil {
 		return err
 	}

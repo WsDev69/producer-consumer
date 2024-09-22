@@ -17,6 +17,7 @@
 # Output of the go prof tool
 *.prof
 *.pprof
+cpu.txt
 
 
 # Dependency directories (remove the comment below to include it)

@@ -11,9 +11,17 @@ BUILD_TIME := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 
 GO := go
 GOLINT := golangci-lint
+DATABASE_MIGRATION := postgres://postgres:12345@host.docker.internal:5432/testdb?sslmode=disable
+MIGRATE := docker run -v ./sql/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database ${DATABASE_MIGRATION}
+CPU_PPROF_PRODUCER := cpu-${APP_NAME_PRODUCER}.pprof
+CPU_PPROF_CONSUMER := cpu-${APP_NAME_CONSUMER}.pprof
+HEAP_PPROF_PRODUCER := heap-${APP_NAME_PRODUCER}.pprof
+HEAP_PPROF_CONSUMER := heap-${APP_NAME_CONSUMER}.pprof
+ALLOC_PPROF_PRODUCER := alloc-${APP_NAME_PRODUCER}.pprof
+ALLOC_PPROF_CONSUMER := alloc-${APP_NAME_CONSUMER}.pprof
 
 
-IMPORT_PATH := producer-consumer/pkg/build
+IMPORT_PATH := github.com/WsDev69/producer-consumer/pkg/build
 
 info:
 	@echo "Version : ${VERSION}"
@@ -36,11 +44,9 @@ dep-update:
 
 dep-all: dep-update dep
 
-build-producer: $(BUILD_DIR)/$(APP_NAME_PRODUCER)
-$(BUILD_DIR)/$(APP_NAME_PRODUCER):
+build-producer:
 	@mkdir -p $(BUILD_DIR)
 	$(GO) build $(GOFLAGS) -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(APP_NAME_PRODUCER) ./cmd/$(APP_NAME_PRODUCER)/main.go
-
 
 build-consumer:
 	@mkdir -p $(BUILD_DIR)
@@ -94,10 +100,40 @@ migrate-up: ## Run migrations
 	$(MIGRATE) up
 
 migrate-down: ## Rollback migrations
-	$(MIGRATE) down
+	$(MIGRATE) down $(v)
 
 migrate-fix: ## Fix migrations
 	$(MIGRATE) force $(v)
+
+show-profile-consumer:
+	@rm -rf ${CPU_PPROF_CONSUMER}
+	@curl -o ${CPU_PPROF_CONSUMER} 'http://localhost:1377/debug/pprof/profile?seconds=30'
+	go tool pprof -http=:8081 ${CPU_PPROF_CONSUMER}
+
+show-profile-producer:
+	@rm -rf ${CPU_PPROF_PRODUCER}
+	@curl -o ${CPU_PPROF_PRODUCER} 'http://localhost:1378/debug/pprof/profile?seconds=30'
+	go tool pprof -http=:8082 ${CPU_PPROF_PRODUCER}
+
+show-heap-consumer:
+	@rm -rf ${CPU_PPROF_CONSUMER}
+	@curl -o ${CPU_PPROF_CONSUMER} 'http://localhost:1377/debug/pprof/heap'
+	go tool pprof -http=:8081 ${CPU_PPROF_CONSUMER}
+
+show-heap-producer:
+	@rm -rf ${HEAP_PPROF_PRODUCER}
+	@curl -o ${HEAP_PPROF_PRODUCER} 'http://localhost:1378/debug/pprof/heap'
+	go tool pprof -http=:8082 ${HEAP_PPROF_PRODUCER}
+
+show-alloc-consumer:
+	@rm -rf ${ALLOC_PPROF_CONSUMER}
+	@curl -o ${ALLOC_PPROF_CONSUMER} 'http://localhost:1377/debug/pprof/allocs'
+	go tool pprof -http=:8081 ${ALLOC_PPROF_CONSUMER}
+
+show-alloc-producer:
+	@rm -rf ${ALLOC_PPROF_PRODUCER}
+	@curl -o ${ALLOC_PPROF_PRODUCER} 'http://localhost:1378/debug/pprof/allocs'
+	go tool pprof -http=:8082 ${ALLOC_PPROF_PRODUCER}
 
 tools:
 	go install github.com/vektra/mockery/v2@v2.46.0

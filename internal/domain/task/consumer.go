@@ -34,6 +34,8 @@ func (c consumer) ProcessTask(ctx context.Context, task model.TaskRequest) error
 		return fmt.Errorf("can't update task: %w ", err)
 	}
 
+	monitoring.TasksProcessedTotal.Inc()
+
 	// simulate work
 	time.Sleep(time.Duration(task.Value) * time.Millisecond)
 
@@ -48,6 +50,11 @@ func (c consumer) ProcessTask(ctx context.Context, task model.TaskRequest) error
 		TasksValueSum.
 		With(prometheus.Labels{"task_type": fmt.Sprintf("%d", task.Type)}).
 		Add(float64(task.Value))
+
+	monitoring.
+		TasksValueTotal.
+		With(prometheus.Labels{"task_type": fmt.Sprintf("%d", task.Type)}).
+		Inc()
 
 	t, err := c.taskSrv.GetTask(ctx, task.ID)
 	if err != nil {
